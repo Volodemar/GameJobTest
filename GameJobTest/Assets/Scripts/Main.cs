@@ -21,4 +21,9 @@ public class Main : MonoBehaviour
         }
         instance = this;
     }
+
+    void Start()
+    {
+        DontDestroyOnLoad(this);
+	}
 }

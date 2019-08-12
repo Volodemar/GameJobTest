@@ -25,7 +25,7 @@ public class GameController : MonoBehaviour
 	/// </summary>
 	public void OnClickPlay()
 	{
-		SceneManager.LoadScene("Level1");
+		SceneManager.LoadScene("Demo");
 	}
 
 	/// <summary>
