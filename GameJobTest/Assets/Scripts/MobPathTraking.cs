@@ -13,6 +13,7 @@ public class MobPathTraking : MonoBehaviour
 	[Tooltip("Поворачиваться остановившись")]
 	public bool isStopPoints = false;
 
+	private Animator Animator;
 	private List<Vector3> PathPoints;
 	private int CurrentPoint = 0; 
 	private string Status = "GoToPoint";
@@ -22,8 +23,9 @@ public class MobPathTraking : MonoBehaviour
 	private void Awake()
 	{
 		//Двигатель персонажа
-		CharController = this.GetComponent<CharacterController>();
-		PathPoints	   = new List<Vector3>();
+		CharController	= this.GetComponent<CharacterController>();
+		PathPoints		= new List<Vector3>();
+		Animator		= this.GetComponent<Animator>(); 
 	}
 
 	private void Start()
@@ -44,6 +46,8 @@ public class MobPathTraking : MonoBehaviour
 				}
 			}
 		}
+
+		Animator.SetInteger("AnyState", 1); 
 	}
 
 	private void Update()
@@ -55,8 +59,13 @@ public class MobPathTraking : MonoBehaviour
 	// Событие движение по пути
 	private void OnMoved()
 	{
+		AnimatorStateInfo asi = Animator.GetCurrentAnimatorStateInfo(0);
+
 		if(Status == "GoToPoint")
 		{
+			if(!asi.IsName("Move"))
+				Animator.SetTrigger("Move");
+
 			// Поворачиваемся в сторону цели на ходу
 			Vector3 direction	= GetCurrentPoint(true) - transform.position;
 			transform.rotation	= Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 3f * Time.deltaTime);
@@ -68,9 +77,6 @@ public class MobPathTraking : MonoBehaviour
 			}
 			else
 			{
-				//Идем к точке
-				//this.transform.LookAt(GetCurrentPoint(true));
-
 				Vector3 forward = transform.TransformDirection(Vector3.forward);
 				CharController.SimpleMove(this.transform.forward * 5.5f);
 			}
@@ -78,16 +84,26 @@ public class MobPathTraking : MonoBehaviour
 
 		if(Status == "InPoint")
 		{
+			if(!asi.IsName("Idle"))
+				Animator.SetTrigger("Idle");
+
 			//Если цель достигнута сменим цель
 			SetNextPoint();
 			if(isStopPoints)
+			{
 				Status = "TurnToPoint";
+			}
 			else
+			{
 				Status = "GoToPoint";
+			}
 		}
 
 		if(Status == "TurnToPoint")
 		{
+			if(!asi.IsName("Idle"))
+				Animator.SetTrigger("Idle");
+
 			Quaternion lastRotation = transform.rotation;
 
 			//Поворачиваемся в сторону цели
@@ -96,9 +112,17 @@ public class MobPathTraking : MonoBehaviour
 
 			//Проверяем видим ли цель - перестали поворачиваться
 			if(lastRotation == transform.rotation)
+			{
 				Status = "GoToPoint";
+			}
 		}
 	}
+
+	//private void SetAnimation()
+	//{
+	//	AnimatorStateInfo asi = Animator.GetCurrentAnimatorStateInfo(0);
+	//	asi.
+	//}
 
 	/// <summary>
 	/// Возвращает координату текущей точки
