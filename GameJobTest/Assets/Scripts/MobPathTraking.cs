@@ -16,7 +16,7 @@ public class MobPathTraking : MonoBehaviour
 	private Animator Animator;
 	private List<Vector3> PathPoints;
 	private int CurrentPoint = 0; 
-	private string Status = "GoToPoint";
+	private string Status = "";
 
 	private CharacterController CharController;
 
@@ -47,7 +47,7 @@ public class MobPathTraking : MonoBehaviour
 			}
 		}
 
-		Animator.SetInteger("AnyState", 1); 
+		SetStatus("GoToPoint");
 	}
 
 	private void Update()
@@ -63,7 +63,7 @@ public class MobPathTraking : MonoBehaviour
 
 		if(Status == "GoToPoint")
 		{
-			if(!asi.IsName("Move"))
+			if (!asi.IsName("Move"))
 				Animator.SetTrigger("Move");
 
 			// Поворачиваемся в сторону цели на ходу
@@ -73,7 +73,7 @@ public class MobPathTraking : MonoBehaviour
 			//Если пришли на точку меняем статус и выходим
 			if(Vector3.Distance(this.transform.position, GetCurrentPoint(true)) < 0.5)
 			{
-				Status = "InPoint";
+				SetStatus("InPoint");
 			}
 			else
 			{
@@ -84,24 +84,24 @@ public class MobPathTraking : MonoBehaviour
 
 		if(Status == "InPoint")
 		{
-			if(!asi.IsName("Idle"))
+			if (!asi.IsName("Idle"))
 				Animator.SetTrigger("Idle");
 
 			//Если цель достигнута сменим цель
 			SetNextPoint();
 			if(isStopPoints)
 			{
-				Status = "TurnToPoint";
+				SetStatus("TurnToPoint");
 			}
 			else
 			{
-				Status = "GoToPoint";
+				SetStatus("GoToPoint");
 			}
 		}
 
 		if(Status == "TurnToPoint")
 		{
-			if(!asi.IsName("Idle"))
+			if (!asi.IsName("Idle"))
 				Animator.SetTrigger("Idle");
 
 			Quaternion lastRotation = transform.rotation;
@@ -113,9 +113,106 @@ public class MobPathTraking : MonoBehaviour
 			//Проверяем видим ли цель - перестали поворачиваться
 			if(lastRotation == transform.rotation)
 			{
-				Status = "GoToPoint";
+				SetStatus("GoToPoint");
 			}
 		}
+
+		// Нажата кнопка танцевать
+		if(Status == "Dance")
+		{
+			if (!asi.IsName("Dance"))
+				Animator.SetTrigger("Dance");
+
+			if (asi.IsName("Dance"))
+				SetStatus("WaitAnim");
+		}
+
+		// Выполнить сальто
+		if(Status == "SaltoMortale")
+		{
+			if (!asi.IsName("SaltoMortale"))
+				Animator.SetTrigger("SaltoMortale");
+
+			if (asi.IsName("SaltoMortale"))
+				SetStatus("WaitAnim");
+		}
+
+		// Здрасте
+		if(Status == "Hi")
+		{
+			if (!asi.IsName("Hi"))
+				Animator.SetTrigger("Hi");
+
+			if (asi.IsName("Hi"))
+				SetStatus("WaitAnim");
+		}
+
+		// Ожидание когда анимация закончится и мы перейдем в Idle
+		if(Status == "WaitAnim")
+		{
+			if(asi.IsName("Idle"))
+				SetStatus("TurnToPoint");
+		}
+	}
+
+	/// <summary>
+	/// Событие здрасте
+	/// </summary>
+	public void OnHi()
+	{
+		if(Status != "Hi")
+		{
+			SetStatus("Hi");
+		}
+	}
+
+	/// <summary>
+	/// Событие выполнить сальто
+	/// </summary>
+	public void OnSaltoMortale()
+	{
+		if(Status != "SaltoMortale")
+		{
+			SetStatus("SaltoMortale");
+		}
+	}
+
+	/// <summary>
+	/// Событие нажатие кнопки танцуй/не такнцуй
+	/// </summary>
+	public void OnClickDance()
+	{
+		if(Status != "Dance")
+		{
+			SetStatus("Dance");
+		}
+		else
+		{
+			SetStatus("TurnToPoint");
+		}
+	}
+
+	/// <summary>
+	/// Вернуть текущий статус
+	/// </summary>
+	public string GetStatus()
+	{
+		return Status;
+	}
+
+	/// <summary>
+	/// Установить новый статус
+	/// </summary>
+	private void SetStatus(string StName)
+	{
+		//if (StName == "GoToPoint")
+		//	Animator.SetTrigger("Move");
+		//if (StName == "TurnToPoint")
+		//	Animator.SetTrigger("Idle");
+		//if (StName == "InPoint")
+		//	Animator.SetTrigger("Idle");
+
+		Status = StName;
 	}
 
 	//private void SetAnimation()

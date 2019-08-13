@@ -44,6 +44,9 @@ public class GameController : MonoBehaviour
 		OnPause();
 	}
 
+	/// <summary>
+	/// Выйти в основное меню
+	/// </summary>
 	public void OnClickMainMenu()
 	{
 		SceneManager.LoadScene("Lobby");
